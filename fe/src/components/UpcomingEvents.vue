@@ -84,7 +84,8 @@
         :data="events"
         @sort-change="doSort"
       >
-        <ElTableColumn prop="name" label="Event Name" :formatter="dateFormatter">
+        <ElTableColumn prop="name" label="Event Name">
+          <!-- the event names are clickable in table just like in cards. when clicked we use Router to avoid a not needed page reload and load up the event page we clicked on -->
           <template #default="scope">
             <RouterLink :to="`/events/${scope.row.id}`">
               {{ scope.row.name }}
@@ -92,9 +93,11 @@
           </template>
         </ElTableColumn>
         <ElTableColumn prop="attendeesCount" label="AttendeeCount" sortable="custom" />
+        <!-- description is not filled in for most events but if it exists it prints in this col -->
         <ElTableColumn prop="description" label="Description" sortable="custom" />
         <ElTableColumn prop="location" label="Location" sortable="custom" />
         <ElTableColumn prop="startDate" label="Date" :formatter="dateFormatter">
+          <!-- use dateFormatter helper func to format the startDate timestamp into proper format -->
           <template #default="scope">
             {{ dateFormatter(scope.row.startDate) }}
           </template>
@@ -260,5 +263,6 @@
 
 h3 {
   margin: 0;
+  padding-top: 1rem;
 }
 </style>
