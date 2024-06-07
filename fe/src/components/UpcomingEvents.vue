@@ -119,7 +119,13 @@
             </ElButton>
           </span>
           <span v-else-if="!authenticated">
-            Please Log in to RSVP
+            <ElButton
+              type="primary"
+              data-test="sign-in-button"
+              @click="() => $router.push({ name: 'SignIn' })"
+            >
+              Sign In to RSVP
+            </ElButton>
           </span>
         </ElTableColumn>
         <ElTableColumn

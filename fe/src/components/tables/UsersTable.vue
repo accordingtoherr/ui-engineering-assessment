@@ -19,6 +19,13 @@
           >
             Delete
           </ElButton>
+          <ElButton
+            size="small"
+            type="primary"
+            @click="isRegisterModalVisible = true"
+          >
+            Edit
+          </ElButton>
         </template>
       </ElTableColumn>
     </ElTable>
@@ -26,7 +33,7 @@
 </template>
 
 <script>
-  import { mapActions, mapState } from 'pinia';
+  import { mapActions, mapState, mapWritableState } from 'pinia';
   import { getUsers, deleteUser } from '@/services/users.js';
   import { useAuthStore } from '@/stores/auth.js';
   import { useUsersStore } from '@/stores/users.js';
@@ -45,6 +52,8 @@
     computed: {
       ...mapState(useUsersStore, ['users']),
       ...mapState(useAuthStore, ['user']),
+      ...mapWritableState(useAuthStore, ['isEditModalVisible']),
+      ...mapWritableState(useAuthStore, ['isRegisterModalVisible']),
     },
     watch: {
       users: {
