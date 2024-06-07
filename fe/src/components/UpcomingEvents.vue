@@ -1,76 +1,143 @@
 <template>
   <div
     v-if="events"
-    class="event-cards"
+    class="event-wrapper"
   >
+    <ElButton type="primary" @click="toggleUITable">
+      Table View
+    </ElButton>
+    <ElButton type="primary" @click="toggleUICard">
+      Card View
+    </ElButton>
     <h3>Upcoming Events</h3>
-    <ElCard
-      v-for="event in events"
-      :key="event.id"
-    >
-      <template #header>
-        <div class="card-header">
-          <h3>
-            <RouterLink :to="`/events/${event.id}`">
-              {{ event.name }}
-            </RouterLink>
-          </h3>
-          <div class="when-where">
-            <div>
-              <ElIcon><Calendar /></ElIcon>
-              {{ dateFormatter(event.startDate) }}
+    <div v-if="card">
+      <ElCard
+        v-for="event in events"
+        :key="event.id"
+      >
+        <template #header>
+          <div class="card-header">
+            <h3>
+              <RouterLink :to="`/events/${event.id}`">
+                {{ event.name }}
+              </RouterLink>
+            </h3>
+            <div class="when-where">
+              <div>
+                <ElIcon><Calendar /></ElIcon>
+                {{ dateFormatter(event.startDate) }}
+              </div>
+              <b>
+                {{ event.location }}
+              </b>
             </div>
-            <b>
-              {{ event.location }}
-            </b>
           </div>
-        </div>
-      </template>
-      {{ event.description || 'No description' }}
-      <template #footer>
-        <div class="card-footer">
-          <div class="footer-buttons">
-            <span v-if="authenticated">
-              <ElButton
-                v-if="event.userId === user.id"
-                data-test="edit-event-button"
-                type="primary"
-                @click="editEvent(event)"
-              >
-                Edit
-              </ElButton>
-              <ElButton
-                v-if="attending(event)"
-                data-test="delete-event-button"
-                type="danger"
-                @click="declineEvent(event)"
-              >
-                Decline
-              </ElButton>
+        </template>
+        {{ event.description || 'No description' }}
+        <template #footer>
+          <div class="card-footer">
+            <div class="footer-buttons">
+              <span v-if="authenticated">
+                <ElButton
+                  v-if="event.userId === user.id"
+                  data-test="edit-event-button"
+                  type="primary"
+                  @click="editEvent(event)"
+                >
+                  Edit
+                </ElButton>
+                <ElButton
+                  v-if="attending(event)"
+                  data-test="delete-event-button"
+                  type="danger"
+                  @click="declineEvent(event)"
+                >
+                  Decline
+                </ElButton>
+                <ElButton
+                  v-else
+                  data-test="attend-event-button"
+                  type="success"
+                  @click="attendEvent(event)"
+                >
+                  Attend
+                </ElButton>
+              </span>
               <ElButton
                 v-else
-                data-test="attend-event-button"
-                type="success"
-                @click="attendEvent(event)"
+                type="primary"
+                data-test="sign-in-button"
+                @click="() => $router.push({ name: 'SignIn' })"
               >
-                Attend
+                Sign In to RSVP
               </ElButton>
-            </span>
+            </div>
+            <div class="attendees-badge">
+              <ElTag>{{ event.attendeesCount }} Going</ElTag>
+            </div>
+          </div>
+        </template>
+      </ElCard>
+    </div>
+    <div v-if="!card">
+      <ElTable
+        :data="events"
+        @sort-change="doSort"
+      >
+        <ElTableColumn prop="name" label="Event Name" :formatter="dateFormatter">
+          <template #default="scope">
+            <RouterLink :to="`/events/${scope.row.id}`">
+              {{ scope.row.name }}
+            </RouterLink>
+          </template>
+        </ElTableColumn>
+        <ElTableColumn prop="attendeesCount" label="AttendeeCount" sortable="custom" />
+        <ElTableColumn prop="description" label="Description" sortable="custom" />
+        <ElTableColumn prop="location" label="Location" sortable="custom" />
+        <ElTableColumn prop="startDate" label="Date" :formatter="dateFormatter">
+          <template #default="scope">
+            {{ dateFormatter(scope.row.startDate) }}
+          </template>
+        </ElTableColumn>
+        <ElTableColumn label="RSVP">
+          <span v-if="authenticated">
             <ElButton
-              v-else
-              type="primary"
-              data-test="sign-in-button"
-              @click="() => $router.push({ name: 'SignIn' })"
+              size="small"
+              data-test="delete-event-button"
+              type="danger"
+              @click="declineEvent(event)"
             >
-              Sign In to RSVP
+              Decline
             </ElButton>
-          </div>
-          <div class="attendees-badge">
-            <ElTag>{{ event.attendeesCount }} Going</ElTag>
-          </div>
-        </div>
-      </template>
-    </ElCard>
+            <ElButton
+              size="small"
+              data-test="accept-event-button"
+              type="success"
+              @click="acceptEvent(event)"
+            >
+              Attend
+            </ElButton>
+          </span>
+          <span v-else-if="!authenticated">
+            Please Log in to RSVP
+          </span>
+        </ElTableColumn>
+        <ElTableColumn
+          v-if="eventsType === 'myEvents'"
+        >
+          <template #default="scope">
+            <ElButton
+              v-if="scope.row.userId === user.id"
+              size="small"
+              type="primary"
+              @click="editEvent(scope.row)"
+            >
+              Edit
+            </ElButton>
+          </template>
+        </ElTableColumn>
+      </ElTable>
+    </div>
   </div>
 </template>
 
@@ -85,6 +152,12 @@
   export default {
     name: 'UpcomingEvents',
     inject: ['loadEvents'],
+    data() {
+      return {
+        card: true,
+
+      };
+    },
     computed: {
       ...mapState(useAuthStore, ['authenticated', 'user']),
       ...mapState(useEventsStore, ['events']),
@@ -98,6 +171,14 @@
     methods: {
       ...mapActions(useAuthStore, ['setUser']),
       ...mapActions(useEventsStore, ['editEvent']),
+
+      // these need to be separate since each handle a different value probably could be enhanced by using computer prop or ref //
+      toggleUICard() {
+        this.card = true;
+      },
+      toggleUITable() {
+        this.card = false;
+      },
       /**
        * Format date helper
        *
@@ -147,9 +228,9 @@
 </script>
 
 <style lang="scss" scoped>
-.event-cards {
+.event-wrapper {
   display: inline-block;
-  width: 900px;
+  width: 1000px;
   padding: 1em;
 
   :deep(.el-card) {
