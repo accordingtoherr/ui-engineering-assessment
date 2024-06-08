@@ -3,6 +3,7 @@
     <MainHeader />
     <router-view />
     <RegisterModal />
+    <EditModal />
   </div>
 </template>
 
@@ -11,15 +12,19 @@
   import { useAuthStore } from '@/stores/auth.js';
   import MainHeader from '@/components/MainHeader.vue';
   import RegisterModal from '@/components/modals/RegisterModal.vue';
+  import EditModal from '@/components/modals/EditModal.vue';
 
   export default {
     name: 'App',
     components: {
       MainHeader,
       RegisterModal,
+      EditModal,
     },
     computed: {
       ...mapWritableState(useAuthStore, ['isRegisterModalVisible']),
+      ...mapWritableState(useAuthStore, ['isEditModalVisible']),
+
     },
   };
 </script>

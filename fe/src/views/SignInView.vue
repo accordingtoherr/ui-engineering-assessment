@@ -21,6 +21,11 @@
           Register
         </ElButton>
         <ElButton
+          @click="isEditModalVisible = true"
+        >
+          Edit Acct
+        </ElButton>
+        <ElButton
           type="primary"
           :disabled="!signInForm.emailAddress"
           @click="doSignIn"
@@ -60,6 +65,7 @@
     },
     computed: {
       ...mapWritableState(useAuthStore, ['isRegisterModalVisible']),
+      ...mapWritableState(useAuthStore, ['isEditModalVisible']),
     },
     methods: {
       ...mapActions(useAuthStore, ['setUser']),

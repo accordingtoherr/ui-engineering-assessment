@@ -22,7 +22,7 @@
           <ElButton
             size="small"
             type="primary"
-            @click="isRegisterModalVisible = true"
+            @click="isEditModalVisible = true"
           >
             Edit
           </ElButton>
@@ -53,7 +53,6 @@
       ...mapState(useUsersStore, ['users']),
       ...mapState(useAuthStore, ['user']),
       ...mapWritableState(useAuthStore, ['isEditModalVisible']),
-      ...mapWritableState(useAuthStore, ['isRegisterModalVisible']),
     },
     watch: {
       users: {

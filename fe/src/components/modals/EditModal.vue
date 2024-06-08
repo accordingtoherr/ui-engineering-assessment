@@ -15,13 +15,13 @@
       @validate="validateHandler"
     >
       <ElFormItem label="First name" prop="firstName">
-        <ElInput v-model="registerForm.firstName" />
+        <ElInput v-model="editForm.firstName" />
       </ElFormItem>
       <ElFormItem label="Last name" prop="lastName">
-        <ElInput v-model="registerForm.lastName" />
+        <ElInput v-model="editForm.lastName" />
       </ElFormItem>
       <ElFormItem label="Email address" prop="emailAddress">
-        <ElInput v-model="registerForm.emailAddress" />
+        <ElInput v-model="editForm.emailAddress" />
       </ElFormItem>
     </ElForm>
     <template #footer>
@@ -37,7 +37,9 @@
 </template>
 
 <script>
-  import { mapActions, mapWritableState } from 'pinia';
+  import {
+    mapActions, mapWritableState, mapState, useUsersStore,
+  } from 'pinia';
   import { useAlertsStore } from '@/stores/alerts.js';
   import { register, setSignedIn } from '@/services/auth.js';
   import { useAuthStore } from '@/stores/auth.js';
@@ -57,7 +59,7 @@
         /**
          * Form data model
          */
-        registerForm: {
+        editForm: {
           firstName: '',
           lastName: '',
           emailAddress: '',
@@ -82,7 +84,7 @@
       };
     },
     computed: {
-    ...mapWritableState(useAuthStore, ['isEditModalVisible']),
+      ...mapWritableState(useAuthStore, ['isEditModalVisible']),
       /**
        * Check if the form is valid
        *
@@ -93,6 +95,8 @@
       },
     },
     methods: {
+      ...mapState(useUsersStore, ['users']),
+      ...mapState(useAuthStore, ['user']),
       ...mapActions(useAuthStore, ['setUser']),
       ...mapActions(useAlertsStore, ['addAlert']),
 

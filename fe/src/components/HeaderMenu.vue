@@ -44,6 +44,14 @@
             Register
           </template>
         </ElMenuItem>
+        <ElMenuItem
+          @click="isEditModalVisible = true"
+        >
+          <template #title>
+            <ElIcon><User /></ElIcon>
+            Register
+          </template>
+        </ElMenuItem>
       </template>
     </ElSubMenu>
   </ElMenu>
@@ -60,6 +68,7 @@
     computed: {
       ...mapState(useAuthStore, ['authenticated']),
       ...mapWritableState(useAuthStore, ['isRegisterModalVisible']),
+      ...mapWritableState(useAuthStore, ['isEditModalVisible']),
     },
     methods: {
       ...mapActions(useEventsStore, ['editEvent']),
