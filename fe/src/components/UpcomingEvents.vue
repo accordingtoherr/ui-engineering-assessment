@@ -184,9 +184,11 @@
       // these need to be separate since each handle a different value probably could be enhanced by using computer prop or ref //
       toggleUICard() {
         this.card = true;
+        this.table = false;
       },
       toggleUITable() {
-        this.card = false;
+        this.table = true;
+        this.card = false
       },
       /**
        * Format date helper
