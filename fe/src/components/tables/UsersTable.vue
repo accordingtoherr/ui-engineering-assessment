@@ -19,8 +19,11 @@
           >
             Delete
           </ElButton>
+          <!--only open the editModal if the user logged is in admin - non admins should not have this ability -->
           <ElButton
+            v-if="user?.admin"
             size="small"
+            v-model="localUsers"
             type="primary"
             @click="isEditModalVisible = true"
           >

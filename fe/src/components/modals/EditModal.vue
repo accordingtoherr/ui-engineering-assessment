@@ -9,38 +9,36 @@
   >
     <ElForm
       ref="form"
-      :model="registerForm"
-      :rules="rules"
+      :model="editForm"
       label-width="120px"
       @validate="validateHandler"
     >
       <ElFormItem label="First name" prop="firstName">
-        <ElInput v-model="editForm.firstName" />
+        <ElInput v-model="editForm.firstName" :placeholder="user.firstName" />
       </ElFormItem>
       <ElFormItem label="Last name" prop="lastName">
-        <ElInput v-model="editForm.lastName" />
+        <ElInput v-model="editForm.lastName" :placeholder="user.lastName" />
       </ElFormItem>
       <ElFormItem label="Email address" prop="emailAddress">
-        <ElInput v-model="editForm.emailAddress" />
+        <ElInput v-model="editForm.emailAddress" :placeholder="user.emailAddress" />
       </ElFormItem>
     </ElForm>
     <template #footer>
       <ElButton
         type="primary"
-        :disabled="!isFormValid"
-        @click="doRegister"
+        @click="doEdit"
       >
-        Confirm
+        Confirm Edits
       </ElButton>
     </template>
   </ElDialog>
 </template>
 
 <script>
-  import {
-    mapActions, mapWritableState, mapState, useUsersStore,
-  } from 'pinia';
+  import { mapActions, mapWritableState, mapState } from 'pinia';
   import { useAlertsStore } from '@/stores/alerts.js';
+  import { getUsers } from '@/services/users.js';
+  import { useUsersStore } from '@/stores/users.js';
   import { register, setSignedIn } from '@/services/auth.js';
   import { useAuthStore } from '@/stores/auth.js';
 
@@ -56,6 +54,7 @@
           lastName: false,
           emailAddress: false,
         },
+        localUsers: null,
         /**
          * Form data model
          */
@@ -64,9 +63,6 @@
           lastName: '',
           emailAddress: '',
         },
-        /**
-         * Form field validation rules
-         */
         rules: {
           firstName: [{
             required: true,
@@ -85,6 +81,8 @@
     },
     computed: {
       ...mapWritableState(useAuthStore, ['isEditModalVisible']),
+      ...mapState(useUsersStore, ['users']),
+      ...mapState(useAuthStore, ['user']),
       /**
        * Check if the form is valid
        *
@@ -94,16 +92,58 @@
         return Object.values(this.formValidity).every((isValid) => isValid);
       },
     },
+    watch: {
+      users: {
+        /**
+         * Update localUsers when store data changes
+         */
+        handler() {
+          this.localUsers = this.users.map((user) => user);
+        },
+        immediate: true,
+        deep: true,
+      },
+      async isModalVisible(isVisible) {
+        if (!isVisible) return;
+
+        if (this.editingEvent) {
+          this.eventForm = { ...this.editingEvent };
+          this.$nextTick(async () => {
+            await this.$refs.formRef.validate();
+          });
+        } else {
+          this.resetForm();
+          this.$refs.formRef.resetFields();
+        }
+      },
+    },
     methods: {
-      ...mapState(useUsersStore, ['users']),
-      ...mapState(useAuthStore, ['user']),
       ...mapActions(useAuthStore, ['setUser']),
       ...mapActions(useAlertsStore, ['addAlert']),
 
       /**
-       * Call API to register a new user, sign them in, and redirect to Home
+       * Load users from the API and save them in the store
        */
-      async doRegister() {
+      async loadUsers() {
+        try {
+          const data = await getUsers();
+
+          this.editUsers(data);
+        } catch (error) {
+          /**
+           * Show error alert
+           */
+          this.addAlert({
+            title: 'Error retrieving users.',
+            type: 'error',
+          });
+        }
+      },
+
+      /**
+       * Call API to edit existing user
+       */
+      async doEdit() {
         try {
           const data = await register(this.registerForm);
 
@@ -115,10 +155,6 @@
           /**
            * Show error alert
            */
-          this.addAlert({
-            title: 'Error registering user. Have you already signed up?',
-            type: 'error',
-          });
         }
       },
       /**
