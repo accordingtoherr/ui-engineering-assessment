@@ -79,7 +79,7 @@
         </template>
       </ElCard>
     </div>
-    <div v-if="!card">
+    <div v-if="table">
       <ElTable
         :data="events"
         @sort-change="doSort"
@@ -93,6 +93,7 @@
           </template>
         </ElTableColumn>
         <ElTableColumn prop="attendeesCount" label="AttendeeCount" sortable="custom" />
+
         <!-- description is not filled in for most events but if it exists it prints in this col -->
         <ElTableColumn prop="description" label="Description" sortable="custom" />
         <ElTableColumn prop="location" label="Location" sortable="custom" />
@@ -135,6 +136,7 @@
           v-if="eventsType === 'myEvents'"
         >
           <template #default="scope">
+            {{ console.log('scope', scope.row) }}
             <ElButton
               v-if="scope.row.userId === user.id"
               size="small"
@@ -164,6 +166,7 @@
     data() {
       return {
         card: true,
+        table: false,
 
       };
     },

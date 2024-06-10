@@ -141,7 +141,7 @@
       },
 
       /**
-       * Call API to edit existing user
+       * Call API to register a new user, sign them in, and redirect to Home
        */
       async doEdit() {
         try {
@@ -155,6 +155,10 @@
           /**
            * Show error alert
            */
+          this.addAlert({
+            title: 'Error registering user. Have you already signed up?',
+            type: 'error',
+          });
         }
       },
       /**
