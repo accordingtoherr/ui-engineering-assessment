@@ -141,11 +141,11 @@
       },
 
       /**
-       * Call API to register a new user, sign them in, and redirect to Home
+       * Call API to edit user, save and redirect to Home, TODO would be to pull the user clicked on into editForm func in user store and save the updated value //
        */
       async doEdit() {
         try {
-          const data = await register(this.registerForm);
+          const data = await register(this.editForm);
 
           this.setUser(data);
           setSignedIn(data);
