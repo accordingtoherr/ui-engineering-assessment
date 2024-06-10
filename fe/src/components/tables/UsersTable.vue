@@ -23,7 +23,6 @@
           <ElButton
             v-if="user?.admin"
             size="small"
-            v-model="localUsers"
             type="primary"
             @click="isEditModalVisible = true"
           >
