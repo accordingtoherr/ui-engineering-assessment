@@ -21,11 +21,6 @@
           Register
         </ElButton>
         <ElButton
-          @click="isEditModalVisible = true"
-        >
-          Edit Acct
-        </ElButton>
-        <ElButton
           type="primary"
           :disabled="!signInForm.emailAddress"
           @click="doSignIn"

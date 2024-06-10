@@ -44,14 +44,6 @@
             Register
           </template>
         </ElMenuItem>
-        <ElMenuItem
-          @click="isEditModalVisible = true"
-        >
-          <template #title>
-            <ElIcon><User /></ElIcon>
-            Register
-          </template>
-        </ElMenuItem>
       </template>
     </ElSubMenu>
   </ElMenu>

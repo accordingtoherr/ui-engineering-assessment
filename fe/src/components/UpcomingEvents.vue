@@ -104,39 +104,41 @@
           </template>
         </ElTableColumn>
         <ElTableColumn label="RSVP">
-          <span v-if="authenticated">
-            <ElButton
-              size="small"
-              data-test="delete-event-button"
-              type="danger"
-              @click="declineEvent(event)"
-            >
-              Decline
-            </ElButton>
-            <ElButton
-              size="small"
-              data-test="accept-event-button"
-              type="success"
-              @click="acceptEvent(event)"
-            >
-              Attend
-            </ElButton>
-          </span>
-          <span v-else-if="!authenticated">
-            <ElButton
-              type="primary"
-              data-test="sign-in-button"
-              @click="() => $router.push({ name: 'SignIn' })"
-            >
-              Sign In to RSVP
-            </ElButton>
-          </span>
+          <template #default="scope">
+            <!-- add or delete from the user's "attendingEvents" array in state based upon if they accept or decline. TODO would be to hide accept if decline and vice versa -->
+            <span v-if="authenticated">
+              <ElButton
+                size="small"
+                data-test="delete-event-button"
+                type="danger"
+                @click="declineEvent(scope.row)"
+              >
+                Decline
+              </ElButton>
+              <ElButton
+                size="small"
+                data-test="accept-event-button"
+                type="success"
+                @click="attendEvent(scope.row)"
+              >
+                Attend
+              </ElButton>
+            </span>
+            <span v-else-if="!authenticated">
+              <ElButton
+                type="primary"
+                data-test="sign-in-button"
+                @click="() => $router.push({ name: 'SignIn' })"
+              >
+                Sign In to RSVP
+              </ElButton>
+            </span>
+          </template>
         </ElTableColumn>
         <ElTableColumn
           v-if="eventsType === 'myEvents'"
         >
           <template #default="scope">
-            {{ console.log('scope', scope.row) }}
             <ElButton
               v-if="scope.row.userId === user.id"
               size="small"
@@ -184,7 +186,7 @@
       ...mapActions(useAuthStore, ['setUser']),
       ...mapActions(useEventsStore, ['editEvent']),
 
-      // these need to be separate since each handle a different value probably could be enhanced by using computer prop or ref //
+      // these need to be separate since each handle a different value, i also did not save to state since the other components really do not need to know if it is displayed in table vs card //
       toggleUICard() {
         this.card = true;
         this.table = false;
@@ -218,6 +220,7 @@
        * @param {object} event
        */
       async attendEvent(event) {
+        console.log('eve', event)
         await joinEvent(event.id, this.user.id);
         const user = await getUser(this.user.id);
 
